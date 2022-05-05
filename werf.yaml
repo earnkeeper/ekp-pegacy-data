@@ -1,0 +1,10 @@
+configVersion: 1
+project: pegacy-data
+---
+image: app
+dockerfile: Dockerfile
+context: .
+---
+image: schedule
+dockerfile: Dockerfile.schedule
+context: .

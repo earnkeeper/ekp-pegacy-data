@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: schedule
+spec:
+  schedule: "30 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            job: schedule
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: python-schedule
+              image: "{{ .Values.werf.image.schedule }}"
+              workingDir: /app
+              env:
+                - name: POLYGONSCAN_API_KEY
+                  value: "{{ .Values.redis.host }}"
+                - name: MONGO_URL
+                  value: "{{ .Values.redis.password }}"
