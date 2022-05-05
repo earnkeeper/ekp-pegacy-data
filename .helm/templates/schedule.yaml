@@ -18,6 +18,6 @@ spec:
               workingDir: /app
               env:
                 - name: POLYGONSCAN_API_KEY
-                  value: "{{ .Values.redis.host }}"
+                  value: "{{ .Values.polygonscan.apiKey }}"
                 - name: MONGO_URL
-                  value: "{{ .Values.redis.password }}"
+                  value: "{{ .Values.mongodb.url }}"
