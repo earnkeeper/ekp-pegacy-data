@@ -6,7 +6,7 @@ POLYGONSCAN_API_KEY = config('POLYGONSCAN_API_KEY')
 MONGO_URL = config('MONGO_URL', default='mongodb://localhost:27017/')
 
 client = MongoClient(MONGO_URL)
-db = client['transactions']
+db = client['pegaxy']
 collection = db['contract_transactions']
 collection.create_index("hash", unique=True)
 collection.create_index([("blockNumber", DESCENDING)])
