@@ -54,7 +54,6 @@ def sync_transactions(contract_address):
             tran["isError"] = tran["isError"] == "1"
             tran["timeStamp"] = int(tran["timeStamp"])
             tran["transactionIndex"] = int(tran["transactionIndex"])
-            tran["tx_receipt_status"] = int(tran["tx_receipt_status"])
 
 
         def format_write(tran):
@@ -67,4 +66,3 @@ def sync_transactions(contract_address):
         if (len(trans) < page_size):
             break
 
-        page += 1
