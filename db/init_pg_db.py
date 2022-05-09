@@ -27,4 +27,4 @@ def init_pg_db():
 
     meta_data.create_all(engine)
     
-    return [conn, market_buys, players, pegas]
+    return [engine, conn, market_buys, players, pegas]
