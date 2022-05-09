@@ -15,7 +15,7 @@ def init_pg_db():
 
     players = players_schema(meta_data)
     market_buys = market_buys_schema(meta_data)
-    paegas = pegas_schema(meta_data)
+    pegas = pegas_schema(meta_data)
 
     try:
         conn = engine.connect()
@@ -26,3 +26,5 @@ def init_pg_db():
         print('db not connected')
 
     meta_data.create_all(engine)
+    
+    return [conn, market_buys, players, pegas]

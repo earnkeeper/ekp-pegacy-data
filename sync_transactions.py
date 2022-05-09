@@ -1,14 +1,16 @@
 import requests
 from decouple import config
-from pymongo import MongoClient, UpdateOne, DESCENDING
+from pymongo import DESCENDING, MongoClient, UpdateOne
 
 POLYGONSCAN_API_KEY = config('POLYGONSCAN_API_KEY')
 
-def sync_transactions(contract_address, collection):
+
+def sync_transactions(contract_address, collection, max_trans_to_fetch=0):
     start_block = 0
     page_size = 5000
 
-    latest = list(collection.find({ "source_contract_address": contract_address }).sort("blockNumber", -1).limit(1))
+    latest = list(collection.find(
+        {"source_contract_address": contract_address}).sort("blockNumber", -1).limit(1))
 
     if latest is not None and len(latest):
         start_block = latest[0]["blockNumber"]
@@ -46,14 +48,12 @@ def sync_transactions(contract_address, collection):
             tran["timeStamp"] = int(tran["timeStamp"])
             tran["transactionIndex"] = int(tran["transactionIndex"])
 
-
         def format_write(tran):
-            return UpdateOne({ "hash": tran["hash"] }, { "$set": tran }, True);
+            return UpdateOne({"hash": tran["hash"]}, {"$set": tran}, True)
 
         collection.bulk_write(
-            list(map(lambda tran: format_write(tran), trans ))
+            list(map(lambda tran: format_write(tran), trans))
         )
 
-        if (len(trans) < page_size):
+        if (len(trans) < page_size or max_trans_to_fetch > 0 and len(trans) > max_trans_to_fetch):
             break
-

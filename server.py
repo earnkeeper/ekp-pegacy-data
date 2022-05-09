@@ -1,34 +1,21 @@
 from decouple import config
-from pymongo import DESCENDING, MongoClient
 
-from db.init_db import init_pg_db
+from db.init_mongo_db import init_mongo_db
+from db.init_pg_db import init_pg_db
 from parse_transactions import parse_transactions
 from sync_transactions import sync_transactions
 
-init_pg_db()
-
-MONGO_URL = config('MONGO_URL', default='mongodb://localhost:27017/')
-
-def init_mongo_db():
-    client = MongoClient(MONGO_URL)
-    return client['pegaxy']
-
-
-def init_contract_transactions_collection(db):
-    collection = db['contract_transactions']
-    collection.create_index("hash", unique=True)
-    collection.create_index([("blockNumber", DESCENDING)])
-    collection.create_index([("timeStamp", DESCENDING)])
-    collection.create_index("source_contract_address")
-    return collection
-
-
-mongo_db = init_mongo_db()
-collection = init_contract_transactions_collection(mongo_db)
+[pg_conn, market_buys_table, players_table, pegas_table] = init_pg_db()
+[mongo_db, contract_collection] = init_mongo_db()
 
 # Pegaxy Market
-# sync_transactions('0x66e4e493bab59250d46bfcf8ea73c02952655206', collection)
+sync_transactions(
+    '0x66e4e493bab59250d46bfcf8ea73c02952655206',
+    contract_collection,
+    config("MAX_TRANS_TO_FETCH", default=0, cast=int)
+)
+
 # PGX token
 # sync_transactions('0xc1c93D475dc82Fe72DBC7074d55f5a734F8cEEAE', collection)
 
-# parse_transactions(collection)
+parse_transactions(contract_collection, pg_conn, market_buys_table)
