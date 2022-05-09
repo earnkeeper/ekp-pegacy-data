@@ -3,3 +3,5 @@ requests
 dnspython
 python-decouple
 autopep8
+psycopg2==2.9.3
+sqlalchemy
