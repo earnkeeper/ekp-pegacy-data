@@ -3,17 +3,8 @@ from decouple import config
 from pymongo import MongoClient, UpdateOne, DESCENDING
 
 POLYGONSCAN_API_KEY = config('POLYGONSCAN_API_KEY')
-MONGO_URL = config('MONGO_URL', default='mongodb://localhost:27017/')
 
-client = MongoClient(MONGO_URL)
-db = client['pegaxy']
-collection = db['contract_transactions']
-collection.create_index("hash", unique=True)
-collection.create_index([("blockNumber", DESCENDING)])
-collection.create_index([("timeStamp", DESCENDING)])
-collection.create_index("source_contract_address")
-
-def sync_transactions(contract_address):
+def sync_transactions(contract_address, collection):
     start_block = 0
     page_size = 5000
 

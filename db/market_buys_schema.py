@@ -8,7 +8,7 @@ def market_buys_schema(meta_data):
                  Column('updated', DateTime(), nullable=False),
                  Column('buyer_address', ForeignKey(
                      'players.address'), nullable=False),
-                 Column('price', BigInteger(), nullable=False),
-                 Column('price_token_id', String(64), nullable=False),
+                 Column('price', String(64), nullable=False),
+                 Column('price_coin_id', String(64), nullable=False),
                  Column('pega_token_id', String(64), nullable=False),
                  )
