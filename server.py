@@ -9,11 +9,11 @@ from sync_transactions import sync_transactions
 [mongo_db, contract_collection] = init_mongo_db()
 
 # Pegaxy Market
-# sync_transactions(
-#     '0x66e4e493bab59250d46bfcf8ea73c02952655206',
-#     contract_collection,
-#     config("MAX_TRANS_TO_FETCH", default=0, cast=int)
-# )
+sync_transactions(
+    '0x66e4e493bab59250d46bfcf8ea73c02952655206',
+    contract_collection,
+    config("MAX_TRANS_TO_FETCH", default=0, cast=int)
+)
 
 # PGX token
 # sync_transactions('0xc1c93D475dc82Fe72DBC7074d55f5a734F8cEEAE', collection)
