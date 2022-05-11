@@ -90,9 +90,16 @@ async def limited(until):
     print('Rate limited, sleeping for {:d} seconds'.format(duration))
     
 async def gather_data():
-    sql_session, pegas_table, list_of_ids = get_data_from_db()
+    while True:
+        sql_session, pegas_table, list_of_ids = get_data_from_db()
 
-    await asyncio.gather(*[parse_from_api(pega_id, sql_session, pegas_table) for pega_id in list_of_ids])
+        if not list_of_ids:
+            break
+        await asyncio.gather(*[parse_from_api(pega_id, sql_session, pegas_table) for pega_id in list_of_ids])
+        not_none_rows = sql_session.query(pegas_table).filter(pegas_table.c.name != None).count()
+        none_rows = sql_session.query(pegas_table).filter(pegas_table.c.name == None).count()
+        print(f'{not_none_rows} number of rows are filled with data. \n'
+              f'{none_rows} rows left')
             
 
 
