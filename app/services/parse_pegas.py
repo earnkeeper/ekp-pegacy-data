@@ -2,13 +2,14 @@ import asyncio
 import itertools
 import json
 import time
-from email.policy import default
 
 import aiohttp
 from aiolimiter import AsyncLimiter
-from aioretry import RetryInfo, RetryPolicyStrategy, retry
+from aioretry import retry
 from decouple import config
 from sqlalchemy import select
+
+from sdk.retry import defaullt_retry_policy
 
 PROXY_HOST = config("PROXY_HOST", default=None)
 PROXY_PORT = config("PROXY_PORT", default=3128, cast=int)
@@ -17,12 +18,6 @@ HTTP_REQ_PER_SEC = 30
 DB_PAGE_SIZE = 50
 API_BASE_URL = 'https://api-apollo.pegaxy.io/v1/game-api/pega/'
 limiter = AsyncLimiter(HTTP_REQ_PER_SEC, time_period=1)
-
-
-def retry_policy(info: RetryInfo):
-    print(info.exception)
-    return False, (info.fails - 1) % 10 + 1
-
 
 def get_data_from_db(pg_db):
     result = list(
@@ -34,8 +29,7 @@ def get_data_from_db(pg_db):
 
     return list(itertools.chain.from_iterable(result))
 
-
-@retry(retry_policy)
+@retry(defaullt_retry_policy)
 async def parse_from_api(pega_id, pg_db):
     pega_url = API_BASE_URL+str(pega_id)
 
