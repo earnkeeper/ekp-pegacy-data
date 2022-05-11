@@ -7,6 +7,7 @@ MONGO_DB_NAME = config('MONGO_DB_NAME', default='pegaxy')
 
 class MongoDb:
     def __init__(self):
+        print('connecting to mongodb')
         self.client = MongoClient(MONGO_URI)
         self.db = self.client[MONGO_DB_NAME]
 
@@ -15,3 +16,4 @@ class MongoDb:
         self.contract_transactions.create_index([("blockNumber", DESCENDING)])
         self.contract_transactions.create_index([("timeStamp", DESCENDING)])
         self.contract_transactions.create_index("source_contract_address")
+        print('connected to mongodb')

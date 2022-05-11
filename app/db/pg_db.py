@@ -11,19 +11,15 @@ POSTGRES_URI = config("POSTGRES_URI")
 class PgDb:
     def __init__(self):
         self.meta_data = MetaData()
-
+        print('connecting to postgres')
+        
         self.engine = create_engine(POSTGRES_URI)
         self.players = players_schema(self.meta_data)
         self.market_buys = market_buys_schema(self.meta_data)
         self.pegas = pegas_schema(self.meta_data)
 
-        try:
-            self.conn = self.engine.connect()
-            print('db connected')
-            print('connection object is :{}'.format(self.conn))
-
-        except:
-            print('db not connected')
+        self.conn = self.engine.connect()
+        print('postgres db connected')
 
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
