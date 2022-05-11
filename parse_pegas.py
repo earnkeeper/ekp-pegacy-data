@@ -1,4 +1,6 @@
 import asyncio
+from ctypes import cast
+from email.policy import default
 import itertools
 import json
 import time
@@ -17,17 +19,20 @@ from sqlalchemy.orm import sessionmaker
 
 from db.pegas_schema import pegas_schema
 
-limiter = AsyncLimiter(10, time_period=1)
+HTTP_REQ_PER_SEC = 30
+DB_PAGE_SIZE = 50
+
+limiter = AsyncLimiter(HTTP_REQ_PER_SEC, time_period=1)
 
 def retry_policy(info: RetryInfo) -> RetryPolicyStrategy:
     return False, (info.fails - 1) % 10 + 1
 
 API_BASE_URL = 'https://api-apollo.pegaxy.io/v1/game-api/pega/'
-
 POSTGRES_URI = config("POSTGRES_URI")
+PROXY_HOST = config("PROXY_HOST", default = None)
+PROXY_PORT = config("PROXY_PORT", default = 3128, cast = int)
 
 start_time = time.time()
-
 
 def get_data_from_db():
     meta_data = MetaData()
@@ -43,12 +48,11 @@ def get_data_from_db():
     result = list(
         conn.execute(
             select(pegas_table.c.id).where(
-                pegas_table.c.name == None).limit(50)
+                pegas_table.c.name == None).limit(DB_PAGE_SIZE)
         )
     )
 
     return session, pegas_table, list(itertools.chain.from_iterable(result))
-
 
 
 @retry(retry_policy)
@@ -57,7 +61,10 @@ async def parse_from_api(pega_id, sql_session, pegas_table):
 
     async with aiohttp.ClientSession() as session:
         await limiter.acquire()
-        response = await session.get(url=pega_url)
+        if (PROXY_HOST is not None):
+            response = await session.get(url=pega_url, proxy = f"http://{PROXY_HOST}:{PROXY_PORT}")
+        else:
+            response = await session.get(url=pega_url)
         
         print(pega_url)
         
@@ -91,7 +98,6 @@ async def limited(until):
     
 async def gather_data():
     sql_session, pegas_table, list_of_ids = get_data_from_db()
-
     await asyncio.gather(*[parse_from_api(pega_id, sql_session, pegas_table) for pega_id in list_of_ids])
             
 
