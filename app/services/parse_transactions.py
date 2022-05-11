@@ -9,12 +9,12 @@ PAGE_SIZE = 1000
 CONTRACT_ADDRESS = "0x66e4e493bab59250d46bfcf8ea73c02952655206"
 
 
-def parse_transactions(collection, engine, conn, market_buys_table, players_table, pegas_table):
+def parse_transactions(mongo_db, pg_db):
 
     latest_timestamp_from_market_buys = 0
     result = list(
-        conn.execute(
-            select(market_buys_table).order_by('created').limit(1)
+        pg_db.conn.execute(
+            select(pg_db.market_buys).order_by('created').limit(1)
         )
     )
 
@@ -27,7 +27,7 @@ def parse_transactions(collection, engine, conn, market_buys_table, players_tabl
     while (True):
         re.IGNORECASE
         next_trans = list(
-            collection.find(
+            mongo_db.contract_transactions.find(
                 {
                     "source_contract_address": CONTRACT_ADDRESS,
                     "input": {"$regex": re.compile("^0x0bb5eaf3")},
@@ -84,21 +84,21 @@ def parse_transactions(collection, engine, conn, market_buys_table, players_tabl
             players.append(player)
             pegas.append(pega)
 
-        conn.execute(
-            insert(market_buys_table)
+        pg_db.conn.execute(
+            insert(pg_db.market_buys)
             .on_conflict_do_nothing(index_elements=["id"]),
             records
         )
 
-        conn.execute(
-            insert(players_table)
+        pg_db.conn.execute(
+            insert(pg_db.players)
             .on_conflict_do_nothing(index_elements=["id"]),
             players
         )
 
-        stmt = insert(pegas_table)
+        stmt = insert(pg_db.pegas)
 
-        conn.execute(
+        pg_db.conn.execute(
             stmt
             .on_conflict_do_update(
                 index_elements=["id"],

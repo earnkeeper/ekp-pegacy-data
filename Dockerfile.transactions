@@ -2,12 +2,9 @@ FROM python:3.8-buster
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
+COPY ./app/requirements.txt ./requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY ./db ./db
-COPY ./main_transactions.py ./main_transactions.py
-COPY ./sync_transactions.py ./sync_transactions.py
-COPY ./parse_transactions.py ./parse_transactions.py
+COPY ./app ./
 
 CMD [ "python3", "main_transactions.py" ]

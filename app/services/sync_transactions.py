@@ -5,11 +5,11 @@ from pymongo import DESCENDING, MongoClient, UpdateOne
 POLYGONSCAN_API_KEY = config('POLYGONSCAN_API_KEY')
 
 
-def sync_transactions(contract_address, collection, max_trans_to_fetch=0):
+def sync_transactions(contract_address, mongo_db, max_trans_to_fetch=0):
     start_block = 0
-    page_size = 5000
+    page_size = 1000
 
-    latest = list(collection.find(
+    latest = list(mongo_db.contract_transactions.find(
         {"source_contract_address": contract_address}).sort("blockNumber", -1).limit(1))
 
     if latest is not None and len(latest):
@@ -51,7 +51,7 @@ def sync_transactions(contract_address, collection, max_trans_to_fetch=0):
         def format_write(tran):
             return UpdateOne({"hash": tran["hash"]}, {"$set": tran}, True)
 
-        collection.bulk_write(
+        mongo_db.contract_transactions.bulk_write(
             list(map(lambda tran: format_write(tran), trans))
         )
 

@@ -2,10 +2,9 @@ FROM python:3.8-buster
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
+COPY ./app/requirements.txt ./requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY ./db ./db
-COPY ./main_pegas.py ./main_pegas.py
+COPY ./app ./
 
 CMD [ "python3", "main_pegas.py" ]
