@@ -5,7 +5,7 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY ./server.py ./server.py
-COPY ./sync_transactions.py ./sync_transactions.py
+COPY ./db ./db
+COPY ./main_pegas.py ./main_pegas.py
 
-CMD [ "python3", "server.py" ]
+CMD [ "python3", "main_pegas.py" ]

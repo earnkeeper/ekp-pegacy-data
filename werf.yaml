@@ -1,6 +1,10 @@
 configVersion: 1
 project: pegacy-data
 ---
-image: schedule
-dockerfile: Dockerfile
+image: transactions
+dockerfile: Dockerfile.transactions
+context: .
+---
+image: pegas
+dockerfile: Dockerfile.pegas
 context: .

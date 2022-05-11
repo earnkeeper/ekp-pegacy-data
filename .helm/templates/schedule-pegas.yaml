@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: schedule-pegas-job
+spec:
+  schedule: "15,45 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            job: schedule-pegas
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: python-schedule
+              image: "{{ .Values.werf.image.pegas }}"
+              workingDir: /app
+              env:
+                - name: POLYGONSCAN_API_KEY
+                  value: "{{ .Values.polygonscan.apiKey }}"
+                - name: MONGO_URI
+                  value: "{{ .Values.mongodb.uri }}"
+                - name: POSTGRES_URI
+                  value: "{{ .Values.postgres.uri }}"
+                - name: PROXY_HOST
+                  value: "{{ .Values.proxy.host }}"
+                - name: PROXY_PORT
+                  value: "{{ .Values.proxy.port }}"
