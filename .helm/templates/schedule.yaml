@@ -21,3 +21,5 @@ spec:
                   value: "{{ .Values.polygonscan.apiKey }}"
                 - name: MONGO_URL
                   value: "{{ .Values.mongodb.url }}"
+                - name: POSTGRES_URI
+                  value: "{{ .Values.postgres.url }}"
