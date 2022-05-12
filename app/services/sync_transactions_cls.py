@@ -1,4 +1,4 @@
-from ...db.mongo_db import MongoDb
+from db.mongo_db import MongoDb
 from decouple import config
 import requests
 

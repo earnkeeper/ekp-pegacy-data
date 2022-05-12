@@ -1,8 +1,8 @@
 import re
 from datetime import datetime
 
-from ...db.mongo_db import MongoDb
-from ...db.pg_db import PgDb
+from db.mongo_db import MongoDb
+from db.pg_db import PgDb
 
 class ParseTransactions:
 
