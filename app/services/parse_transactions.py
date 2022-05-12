@@ -12,11 +12,7 @@ CONTRACT_ADDRESS = "0x66e4e493bab59250d46bfcf8ea73c02952655206"
 def parse_transactions(mongo_db, pg_db):
 
     latest_timestamp_from_market_buys = 0
-    result = list(
-        pg_db.conn.execute(
-            select(pg_db.market_buys).order_by('created').limit(1)
-        )
-    )
+    result = pg_db.get_latest()
 
     if (len(result) > 0):
         latest_timestamp_from_market_buys = int(
@@ -26,16 +22,11 @@ def parse_transactions(mongo_db, pg_db):
 
     while (True):
         re.IGNORECASE
-        next_trans = list(
-            mongo_db.contract_transactions.find(
-                {
-                    "source_contract_address": CONTRACT_ADDRESS,
-                    "input": {"$regex": re.compile("^0x0bb5eaf3")},
-                    "timeStamp": {"$gt": latest_timestamp_from_market_buys}
-                }
-            )
-            .sort("blockNumber", 1)
-            .limit(PAGE_SIZE)
+        next_trans = mongo_db.get_next_trans(
+            contract_address=CONTRACT_ADDRESS,
+            latest_timestamp_from_market_buys=latest_timestamp_from_market_buys,
+            pagesize=PAGE_SIZE,
+            start_string="^0x0bb5eaf3"
         )
 
         if len(next_trans) == 0:
@@ -84,31 +75,11 @@ def parse_transactions(mongo_db, pg_db):
             players.append(player)
             pegas.append(pega)
 
-        pg_db.conn.execute(
-            insert(pg_db.market_buys)
-            .on_conflict_do_nothing(index_elements=["id"]),
-            records
-        )
+        pg_db.insert_to_market_buys_table(data=records)
 
-        pg_db.conn.execute(
-            insert(pg_db.players)
-            .on_conflict_do_nothing(index_elements=["id"]),
-            players
-        )
+        pg_db.insert_to_players_table(data=players)
 
-        stmt = insert(pg_db.pegas)
-
-        pg_db.conn.execute(
-            stmt
-            .on_conflict_do_update(
-                index_elements=["id"],
-                set_={
-                    "cost": stmt.excluded.cost,
-                    "owner_player_id": stmt.excluded.owner_player_id
-                }
-            ),
-            pegas
-        )
+        pg_db.insert_to_pegas_table(data=pegas)
 
         print(f'Processed {len(next_trans)} market_buys...')
 

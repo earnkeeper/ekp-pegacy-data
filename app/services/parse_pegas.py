@@ -24,15 +24,10 @@ def retry_policy(info: RetryInfo):
     return False, (info.fails - 1) % 10 + 1
 
 
-def get_data_from_db(pg_db):
-    result = list(
-        pg_db.conn.execute(
-            select(pg_db.pegas.c.id).where(
-                pg_db.pegas.c.name == None).limit(DB_PAGE_SIZE)
-        )
-    )
-
-    return list(itertools.chain.from_iterable(result))
+# def get_data_from_db(pg_db):
+#     result = pg_db.get_rows_with_null(limit_page_size=DB_PAGE_SIZE)
+#
+#     return list(itertools.chain.from_iterable(result))
 
 
 @retry(retry_policy)
@@ -72,11 +67,7 @@ async def parse_from_api(pega_id, pg_db):
 
         print(f"Updating pega id {pega_id} in the database")
 
-        pg_db.session.query(pg_db.pegas).filter(
-            pg_db.pegas.c.id == pega_id
-        ).update(pega_info)
-
-        pg_db.session.commit()
+        pg_db.update_query(pega_id=pega_id, pega_info=pega_info)
 
 
 async def limited(until):
@@ -88,8 +79,8 @@ async def parse_pegas(pg_db):
     while True:
         print(f"Fetching new pega ids from database")
 
-        list_of_ids = get_data_from_db(pg_db)
-
+        # list_of_ids = get_data_from_db(pg_db)
+        list_of_ids = pg_db.get_rows_with_null(DB_PAGE_SIZE)
         print(f"Processing {len(list_of_ids)} pega ids")
 
         if not list_of_ids:

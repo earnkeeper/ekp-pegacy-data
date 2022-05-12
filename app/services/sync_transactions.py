@@ -9,9 +9,10 @@ def sync_transactions(contract_address, mongo_db, max_trans_to_fetch=0):
     start_block = 0
     page_size = 1000
 
-    latest = list(mongo_db.contract_transactions.find(
-        {"source_contract_address": contract_address}).sort("blockNumber", -1).limit(1))
+    # latest = list(mongo_db.contract_transactions.find(
+    #     {"source_contract_address": contract_address}).sort("blockNumber", -1).limit(1))
 
+    latest = mongo_db.get_latest(contract_address=contract_address)
     if latest is not None and len(latest):
         start_block = latest[0]["blockNumber"]
 
@@ -48,12 +49,7 @@ def sync_transactions(contract_address, mongo_db, max_trans_to_fetch=0):
             tran["timeStamp"] = int(tran["timeStamp"])
             tran["transactionIndex"] = int(tran["transactionIndex"])
 
-        def format_write(tran):
-            return UpdateOne({"hash": tran["hash"]}, {"$set": tran}, True)
-
-        mongo_db.contract_transactions.bulk_write(
-            list(map(lambda tran: format_write(tran), trans))
-        )
+        mongo_db.bulk_write(trans)
 
         if (len(trans) < page_size or max_trans_to_fetch > 0 and len(trans) > max_trans_to_fetch):
             break
