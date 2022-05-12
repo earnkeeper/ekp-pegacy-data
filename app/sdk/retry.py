@@ -13,4 +13,4 @@ import math
 
 def defaullt_retry_policy(info: RetryInfo):
     print(info.exception)
-    return (info.fails >= 5), [0, 0.5, 2, 5, 10, 10][info.fails - 1]
+    return (info.fails >= 8), [0, 0.5, 2, 5, 10, 15, 20, 30, 60][info.fails - 1]
