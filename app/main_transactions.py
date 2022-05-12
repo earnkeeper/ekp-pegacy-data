@@ -4,17 +4,23 @@ from db.mongo_db import MongoDb
 from db.pg_db import PgDb
 from services.parse_transactions import parse_transactions
 from services.sync_transactions import sync_transactions
+from services.sync_transactions_cls import SyncTransactions
 
 if __name__ == '__main__':
     pg_db = PgDb()
     mongo_db = MongoDb()
     
     # Pegaxy Market
-    sync_transactions(
-       '0x66e4e493bab59250d46bfcf8ea73c02952655206',
-        mongo_db,
-        config("MAX_TRANS_TO_FETCH", default=0, cast=int)
+    SyncTransactions(
+        contract_address='0x66e4e493bab59250d46bfcf8ea73c02952655206',
+        max_trans_to_fetch=config("MAX_TRANS_TO_FETCH", default=0, cast=int)
     )
+
+    # sync_transactions(
+    #    '0x66e4e493bab59250d46bfcf8ea73c02952655206',
+    #     mongo_db,
+    #     config("MAX_TRANS_TO_FETCH", default=0, cast=int)
+    # )
     
     # PGX token
     # sync_transactions('0xc1c93D475dc82Fe72DBC7074d55f5a734F8cEEAE', mongo_db)

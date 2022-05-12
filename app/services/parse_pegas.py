@@ -24,12 +24,6 @@ def retry_policy(info: RetryInfo):
     return False, (info.fails - 1) % 10 + 1
 
 
-# def get_data_from_db(pg_db):
-#     result = pg_db.get_rows_with_null(limit_page_size=DB_PAGE_SIZE)
-#
-#     return list(itertools.chain.from_iterable(result))
-
-
 @retry(retry_policy)
 async def parse_from_api(pega_id, pg_db):
     pega_url = API_BASE_URL+str(pega_id)
