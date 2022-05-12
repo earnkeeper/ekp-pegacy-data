@@ -1,0 +1,49 @@
+MongoDb
+    -client Mongodb object
+    -db mongodb_database
+    -contract_transactions mongodb_cluster
+    +get_latest()
+    +get_next_trans()
+    +format_write()
+    +bulk_write()
+PgDb
+    -metadata Metadata object
+    -engine Engine object
+    -players Player Schema object
+    -market_buys Market Buys Schema object
+    -pegas Pegas Schema object
+    -conn Database connection object
+    -session Session object
+    +get_latest()
+    +get_rows_with_null()
+    +insert_to_market_buys_table()
+    +insert_to_players_table()
+    +insert_to_pegas_table()
+    +update_query()
+
+SyncTransactions
+    -POLYGONSCAN_API_KEY string
+    -contract_address string
+    -max_trans_to_fetch int
+    -start_block int
+    -page_size int
+    -mongo_db MongoDb class object
+    
+    +get_latest_start_block()
+    +get_trans()
+    +write_main()
+
+ParseTransactions
+    -pg_db PgDb class object
+    -mongo_db MongoDb class object
+    -contract_address string
+    -latest_timestamp_from_market_buys int
+    -page_size int
+    -mongo_db MongoDb class object
+    
+    +get_latest_timestamp_from_market_buys()
+    +parse_main()
+
+SyncTransactions --> MongoDb
+ParseTransactions --> MongoDb
+ParseTransactions --> PgDb
