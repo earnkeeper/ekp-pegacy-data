@@ -1,30 +1,17 @@
 from decouple import config
 
-from db.mongo_db import MongoDb
-from db.pg_db import PgDb
-from services.parse_transactions import parse_transactions
-from services.sync_transactions import sync_transactions
 from services.sync_transactions_cls import SyncTransactions
-
+from services.parse_transactions_cls import ParseTransactions
 if __name__ == '__main__':
-    pg_db = PgDb()
-    mongo_db = MongoDb()
-    
+
+    contract_address = '0x66e4e493bab59250d46bfcf8ea73c02952655206'
     # Pegaxy Market
     SyncTransactions(
-        contract_address='0x66e4e493bab59250d46bfcf8ea73c02952655206',
+        contract_address=contract_address,
         max_trans_to_fetch=config("MAX_TRANS_TO_FETCH", default=0, cast=int)
     )
-
-    # sync_transactions(
-    #    '0x66e4e493bab59250d46bfcf8ea73c02952655206',
-    #     mongo_db,
-    #     config("MAX_TRANS_TO_FETCH", default=0, cast=int)
-    # )
     
     # PGX token
     # sync_transactions('0xc1c93D475dc82Fe72DBC7074d55f5a734F8cEEAE', mongo_db)
-    
-    parse_transactions(mongo_db, pg_db)
-    
-    
+
+    ParseTransactions(contract_address=contract_address)

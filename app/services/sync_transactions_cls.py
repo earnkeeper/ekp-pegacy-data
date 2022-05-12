@@ -1,4 +1,3 @@
-# from db.pg_db import PgDb
 from ...db.mongo_db import MongoDb
 from decouple import config
 import requests
