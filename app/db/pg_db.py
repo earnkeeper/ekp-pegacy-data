@@ -56,7 +56,7 @@ class PgDb:
 
     def insert_to_players_table(self, data):
         self.conn.execute(
-            insert(self.market_buys)
+            insert(self.players)
                 .on_conflict_do_nothing(index_elements=["id"]),
             data
         )
