@@ -1,15 +1,13 @@
 import asyncio
-import itertools
 import json
-import time
-from email.policy import default
 
 import aiohttp
 from aiolimiter import AsyncLimiter
-from aioretry import RetryInfo, RetryPolicyStrategy, retry
+from aioretry import retry
 from decouple import config
-from sqlalchemy import select
 from db.pg_db import PgDb
+from services.utils import retry_policy
+
 
 class ParsePegas:
     PROXY_HOST = config("PROXY_HOST", default=None)
@@ -21,13 +19,6 @@ class ParsePegas:
         self.http_req_per_sec = 30
         self.db_page_size = 50
         self.limiter = AsyncLimiter(self.http_req_per_sec, time_period=1)
-
-
-
-    @staticmethod
-    def retry_policy(info: RetryInfo):
-        print(info.exception)
-        return False, (info.fails - 1) % 10 + 1
 
     @retry(retry_policy)
     async def parse_from_api(self, pega_id):
@@ -80,6 +71,3 @@ class ParsePegas:
                 break
 
             await asyncio.gather(*[self.parse_from_api(pega_id) for pega_id in list_of_ids])
-
-
-
