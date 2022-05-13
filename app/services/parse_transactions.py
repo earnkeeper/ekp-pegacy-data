@@ -1,22 +1,14 @@
 import re
 from datetime import datetime
 
-from db.mongo_db import MongoDb
-from db.pg_db import PgDb
-
 class ParseTransactions:
 
-    def __init__(self, contract_address):
-        self.pg_db = PgDb()
-        self.mongo_db = MongoDb()
+    def __init__(self, mongo_db, pg_db, contract_address):
+        self.pg_db = pg_db
+        self.mongo_db = mongo_db
         self.contract_address = contract_address
         self.page_size = 1000
         self.latest_timestamp_from_market_buys = 0
-
-        self.get_latest_timestamp_from_market_buys()
-
-        self.parse_main()
-
 
     def get_latest_timestamp_from_market_buys(self):
         result = self.pg_db.get_latest()
@@ -26,7 +18,9 @@ class ParseTransactions:
             print(
                 f'Latest timestamp from db is: {self.latest_timestamp_from_market_buys}')
 
-    def parse_main(self):
+    def process(self):
+        self.get_latest_timestamp_from_market_buys()
+        
         while True:
             re.IGNORECASE
             next_trans = self.mongo_db.get_next_trans(
